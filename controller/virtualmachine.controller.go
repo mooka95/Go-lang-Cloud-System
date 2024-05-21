@@ -31,3 +31,13 @@ func GetAllVirtualMachines(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, virtualMachines)
 }
+func GetVirtualMachineByID(context *gin.Context) {
+	      // Extract the path parameter
+		  id := context.Param("id")
+		  virtualMachines, err := models.GetVirtualMachineByID(id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch VirtualMachine. Try again later."})
+		return
+	}
+	context.JSON(http.StatusOK, virtualMachines)
+}

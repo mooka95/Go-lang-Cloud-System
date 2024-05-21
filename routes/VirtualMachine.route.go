@@ -7,9 +7,10 @@ import (
 
 
 func RegisterVirtualMachinesRoutes(router *gin.Engine) {
-    virtualmachineGroup := router.Group("/virtualmachine")
+    virtualmachineGroup := router.Group("/virtualmachines")
     {
         virtualmachineGroup.POST("/",controller.AddVirtualMachine)
         virtualmachineGroup.GET("/",controller.GetAllVirtualMachines)
+        virtualmachineGroup.GET("/:id",controller.GetVirtualMachineByID)
     }
 }
