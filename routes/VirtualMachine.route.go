@@ -10,5 +10,6 @@ func RegisterVirtualMachinesRoutes(router *gin.Engine) {
     virtualmachineGroup := router.Group("/virtualmachine")
     {
         virtualmachineGroup.POST("/",controller.AddVirtualMachine)
+        virtualmachineGroup.GET("/",controller.GetAllVirtualMachines)
     }
 }

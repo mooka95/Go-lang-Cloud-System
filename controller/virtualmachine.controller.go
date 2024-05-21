@@ -23,3 +23,11 @@ func AddVirtualMachine(context *gin.Context) {
 
 	context.JSON(http.StatusCreated, gin.H{"message": "virtualMachine created Successfully", "vmId": vmIdentifier})
 }
+func GetAllVirtualMachines(context *gin.Context) {
+	virtualMachines, err := models.GetAllVirtualMachines()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch VirtualMachines. Try again later."})
+		return
+	}
+	context.JSON(http.StatusOK, virtualMachines)
+}

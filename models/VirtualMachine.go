@@ -40,3 +40,27 @@ func (vm *VirtualMachine) InsertVirtualMachine() (int, error) {
 
 	return id, nil
 }
+func GetAllVirtualMachines() ([]VirtualMachine, error) {
+
+	query := "SELECT virtualmachines.hostname,virtualmachines.is_active,virtualmachines.operating_system, virtualmachines.identifier,users.identifier FROM virtualmachines LEFT JOIN users ON users.id = virtualmachines.user_id"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var virtualMachines []VirtualMachine
+
+	for rows.Next() {
+		var vm VirtualMachine
+		err := rows.Scan(&vm.HostName, &vm.IsActive, &vm.OperatingSystem, &vm.Identifier,&vm.UserIdentifier)
+
+		if err != nil {
+			return nil, err
+		}
+
+		virtualMachines = append(virtualMachines, vm)
+	}
+
+	return virtualMachines, nil
+}
