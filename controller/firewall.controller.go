@@ -42,3 +42,19 @@ func GetFirewallByID(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, firewall)
 }
+func DeleteFirewall(context *gin.Context) {
+	firewallId := context.Param("id")
+
+	firewall, err := models.GetFirewallByID(firewallId)
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": "Firewall not exists"})
+		return
+	}
+	err = firewall.DeleteFirewall()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete the Firewall"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "Firewall deleted successfully!"})
+
+}

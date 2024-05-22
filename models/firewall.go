@@ -64,6 +64,18 @@ func GetFirewallByID(identifier string) (*Firewall, error) {
 
 	return &firewall, nil
 }
+func (firewall *Firewall) DeleteFirewall() error{
+	stmt, err := database.DB.Prepare(queries.QueryFirewallMap["deleteFirewall"])
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(firewall.Identifier)
+	return err
+}
 // func GetFirewallByIdAndName(identifier string) (*VirtualMachine, error) {
 // 	row := database.DB.QueryRow(queries.QueryMap["getVirtualMachineById"], identifier)
 // 	var virtualMachine VirtualMachine
