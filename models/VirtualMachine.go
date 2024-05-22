@@ -90,21 +90,16 @@ func (vm *VirtualMachine) DeleteVirtualMachine(identifier string) error{
 	return err
 }
 
-// func (vm *VirtualMachine) UpdateVirtualMachineActiveState() error {
+func (vm *VirtualMachine) UpdateVirtualMachineActiveState(isActive bool) error {
 
-// 	query := `
-// 	UPDATE virtualmachines
-// 	SET is_active = ?
-// 	WHERE identifier = ?
-// 	`
-// 	stmt, err := database.DB.Prepare(query)
+	stmt, err := database.DB.Prepare(queries.QueryMap["updateIsActive"])
 
-// 	if err != nil {
-// 		return err
-// 	}
+	if err != nil {
+		return err
+	}
 
-// 	defer stmt.Close()
+	defer stmt.Close()
 
-// 	// _, err = stmt.Exec(event.Name, event.Description, event.Location, event.DateTime, event.ID)
-// 	return err
-// }
+	_, err = stmt.Exec(isActive,vm.Identifier)
+	return err
+}
