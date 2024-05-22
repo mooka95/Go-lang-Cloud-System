@@ -24,3 +24,11 @@ func AddFirewall(context *gin.Context) {
 
 	context.JSON(http.StatusCreated, gin.H{"message": fmt.Sprintf(" Firewall Added successfully with id: %s", *firewallIdentifier)})
 }
+func GetAllFirewalls(context *gin.Context) {
+	firewalls, err := models.GetAllFirewalls()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch firewalls. Try again later."})
+		return
+	}
+	context.JSON(http.StatusOK, firewalls)
+}

@@ -10,5 +10,6 @@ func RegisterFirewallRoutes(router *gin.Engine) {
 	FirewallGroup := router.Group("/firewall")
 	{
 		FirewallGroup.POST("/", controller.AddFirewall)
+		FirewallGroup.GET("/", controller.GetAllFirewalls)
 	}
 }
