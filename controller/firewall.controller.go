@@ -32,3 +32,13 @@ func GetAllFirewalls(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, firewalls)
 }
+func GetFirewallByID(context *gin.Context) {
+	// Extract the path parameter
+	id := context.Param("id")
+	firewall, err := models.GetFirewallByID(id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch Firewall. Try again later."})
+		return
+	}
+	context.JSON(http.StatusOK, firewall)
+}

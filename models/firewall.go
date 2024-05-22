@@ -54,6 +54,16 @@ func GetAllFirewalls() ([]Firewall, error) {
 
 	return firewalls, nil
 }
+func GetFirewallByID(identifier string) (*Firewall, error) {
+	row := database.DB.QueryRow(queries.QueryFirewallMap["getFirewallById"], identifier)
+	var firewall Firewall
+	err := row.Scan(&firewall.Name, &firewall.Identifier, &firewall.UserIdentifier)
+	if err != nil {
+	return nil, err
+	}
+
+	return &firewall, nil
+}
 // func GetFirewallByIdAndName(identifier string) (*VirtualMachine, error) {
 // 	row := database.DB.QueryRow(queries.QueryMap["getVirtualMachineById"], identifier)
 // 	var virtualMachine VirtualMachine
