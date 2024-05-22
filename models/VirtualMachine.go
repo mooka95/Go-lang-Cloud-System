@@ -76,6 +76,19 @@ func GetVirtualMachineByID(identifier string) (*VirtualMachine, error) {
 
 	return &virtualMachine, nil
 }
+func (vm *VirtualMachine) DeleteVirtualMachine(identifier string) error{
+	// query := "DELETE FROM events WHERE id = ?"
+	stmt, err := database.DB.Prepare(queries.QueryMap["deleteVirtualMachine"])
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(identifier)
+	return err
+}
 
 // func (vm *VirtualMachine) UpdateVirtualMachineActiveState() error {
 
