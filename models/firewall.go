@@ -25,7 +25,7 @@ func (firewall *Firewall) InsertFirewall() (*string, error) {
 
 	// Prepare the SQL statement.
 	var id string
-	errQuery := database.DB.QueryRow(queries.QueryFirewallMap["insertFirewall"], firewall.Name, 4, uuid.New()).Scan(&id)
+	errQuery := database.DB.QueryRow(queries.QueryFirewallMap["insertFirewall"], firewall.Name, firewall.Identifier, uuid.New()).Scan(&id)
 	if errQuery != nil {
 		fmt.Println(errQuery)
 		return nil, errQuery
@@ -59,12 +59,12 @@ func GetFirewallByID(identifier string) (*Firewall, error) {
 	var firewall Firewall
 	err := row.Scan(&firewall.Name, &firewall.Identifier, &firewall.UserIdentifier)
 	if err != nil {
-	return nil, err
+		return nil, err
 	}
 
 	return &firewall, nil
 }
-func (firewall *Firewall) DeleteFirewall() error{
+func (firewall *Firewall) DeleteFirewall() error {
 	stmt, err := database.DB.Prepare(queries.QueryFirewallMap["deleteFirewall"])
 
 	if err != nil {
@@ -76,6 +76,7 @@ func (firewall *Firewall) DeleteFirewall() error{
 	_, err = stmt.Exec(firewall.Identifier)
 	return err
 }
+
 // func GetFirewallByIdAndName(identifier string) (*VirtualMachine, error) {
 // 	row := database.DB.QueryRow(queries.QueryMap["getVirtualMachineById"], identifier)
 // 	var virtualMachine VirtualMachine

@@ -9,13 +9,17 @@ import (
 )
 
 func AddFirewall(context *gin.Context) {
-	var firewall models.Firewall
-	err := context.ShouldBindJSON(&firewall)
 
+	var firewall models.Firewall
+	// firewall=models.GetFirewallByID()
+	err := context.ShouldBindJSON(&firewall)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data"})
 		return
 	}
+	// firewall,err = models.GetFirewallByID(firewall.Identifier)
+	// models.GetFirewallByID(firewall.Identifier)
+	firewall.Identifier = context.GetString("userId")
 	firewallIdentifier, err := firewall.InsertFirewall()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create Firewall. Try again later."})

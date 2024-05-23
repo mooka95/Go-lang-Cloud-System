@@ -45,21 +45,26 @@ func GetVirtualMachineByID(context *gin.Context) {
 }
 func UpdateVirtualMachineActiveState(context *gin.Context) {
 	body, err := utils.ExtractBodyFromRequest(context.Request.Body)
-	fmt.Println(body["id"])
+
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "SomeThing Went Wrong"})
 		return
 	}
+	id, IdExists := body["id"]
 
-	virtualMachine, err := models.GetVirtualMachineByID(body["id"].(string))
+	if !IdExists {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Missing id in the request body"})
+		return
+	}
+	virtualMachine, err := models.GetVirtualMachineByID(id.(string))
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "this virtual machine not exist "})
 		return
 	}
-	if(virtualMachine.IsActive == body["isActive"].(bool) && virtualMachine.IsActive){
+	if virtualMachine.IsActive == body["isActive"].(bool) && virtualMachine.IsActive {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Virtual machine is already active "})
 		return
-	} else if(virtualMachine.IsActive == body["isActive"].(bool) && !virtualMachine.IsActive){
+	} else if virtualMachine.IsActive == body["isActive"].(bool) && !virtualMachine.IsActive {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Virtual machine is already not Active "})
 		return
 	}
@@ -87,5 +92,3 @@ func DeleteVirtualMachine(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "VirtualMachine deleted successfully!"})
 
 }
-
-
