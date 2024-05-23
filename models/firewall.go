@@ -12,6 +12,7 @@ type Firewall struct {
 	Name           string `json:"name" binding:"required"`
 	Identifier     string
 	UserIdentifier string
+	UserId int64
 }
 
 func NewFirewall(name string) *Firewall {
@@ -25,7 +26,7 @@ func (firewall *Firewall) InsertFirewall() (*string, error) {
 
 	// Prepare the SQL statement.
 	var id string
-	errQuery := database.DB.QueryRow(queries.QueryFirewallMap["insertFirewall"], firewall.Name, firewall.Identifier, uuid.New()).Scan(&id)
+	errQuery := database.DB.QueryRow(queries.QueryFirewallMap["insertFirewall"], firewall.Name, firewall.UserId, uuid.New()).Scan(&id)
 	if errQuery != nil {
 		fmt.Println(errQuery)
 		return nil, errQuery
@@ -75,6 +76,16 @@ func (firewall *Firewall) DeleteFirewall() error {
 
 	_, err = stmt.Exec(firewall.Identifier)
 	return err
+}
+func GetFirewallByNameAndUserId(userId int64, firewallName string) (*Firewall, error){
+	row := database.DB.QueryRow(queries.QueryFirewallMap["getFirewallByNameAndUserId"], firewallName,userId)
+	var firewall Firewall
+	err := row.Scan(&firewall.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &firewall, nil
 }
 
 // func GetFirewallByIdAndName(identifier string) (*VirtualMachine, error) {

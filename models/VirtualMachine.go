@@ -14,6 +14,7 @@ type VirtualMachine struct {
 	Identifier      string `json:"identifier"`
 	OperatingSystem string `json:"operatingSystem" binding:"required"`
 	UserIdentifier  string
+	UserId          int64
 }
 
 func NewVirtualMachine(hostName, operatingSystem, UserIdentifier string, isActive bool) *VirtualMachine {
@@ -29,11 +30,8 @@ func (vm *VirtualMachine) SetIdentifier(identifier string) {
 	vm.Identifier = identifier
 }
 func (vm *VirtualMachine) InsertVirtualMachine() (*string, error) {
-
-	sqlStatement := `INSERT INTO virtualmachines (hostname, is_active,operating_system,user_id,identifier) VALUES ($1, $2,$3,$4,$5) RETURNING identifier`
-	// Prepare the SQL statement.
 	var id string
-	errQuery := database.DB.QueryRow(sqlStatement, vm.HostName, vm.IsActive, vm.OperatingSystem, 3, uuid.New()).Scan(&id)
+	errQuery := database.DB.QueryRow(queries.QueryMap["insertVirtualMachine"], vm.HostName, vm.IsActive, vm.OperatingSystem, vm.UserId, uuid.New()).Scan(&id)
 	if errQuery != nil {
 		fmt.Println(errQuery)
 		return nil, errQuery
@@ -76,7 +74,7 @@ func GetVirtualMachineByID(identifier string) (*VirtualMachine, error) {
 
 	return &virtualMachine, nil
 }
-func (vm *VirtualMachine) DeleteVirtualMachine(identifier string) error{
+func (vm *VirtualMachine) DeleteVirtualMachine(identifier string) error {
 	// query := "DELETE FROM events WHERE id = ?"
 	stmt, err := database.DB.Prepare(queries.QueryMap["deleteVirtualMachine"])
 
@@ -100,6 +98,6 @@ func (vm *VirtualMachine) UpdateVirtualMachineActiveState(isActive bool) error {
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(isActive,vm.Identifier)
+	_, err = stmt.Exec(isActive, vm.Identifier)
 	return err
 }

@@ -47,14 +47,13 @@ func LoginUser(context *gin.Context) {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "email or password invalid"})
 		return
 	}
-	//validate credintials
 	err = user.ValidatePassword(password.(string))
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "email or password invalid"})
 		return
 	}
 	//generate token and get response
-	token, err := utils.GenerateToken(user.Email, user.Identifier)
+	token, err := utils.GenerateToken(user.Email, user.Id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user."})
 		return

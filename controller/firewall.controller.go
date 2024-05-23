@@ -17,9 +17,7 @@ func AddFirewall(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data"})
 		return
 	}
-	// firewall,err = models.GetFirewallByID(firewall.Identifier)
-	// models.GetFirewallByID(firewall.Identifier)
-	firewall.Identifier = context.GetString("userId")
+	firewall.UserId = context.GetInt64("userId")
 	firewallIdentifier, err := firewall.InsertFirewall()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create Firewall. Try again later."})

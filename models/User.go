@@ -10,6 +10,7 @@ import (
 )
 
 type User struct {
+	Id int64
 	Email      string `json:"email" binding:"required,email"`
 	Password   string `json:"password" binding:"required"`
 	FirstName  string
@@ -62,7 +63,7 @@ func GetUserId(identifier string) (string, error) {
 func GetUserByEmail(email string) (*User, error) {
 	row := database.DB.QueryRow(queries.QueryUserMap["getUserByEmail"], email)
 	var user User
-	err := row.Scan(&user.Identifier, &user.Password)
+	err := row.Scan(&user.Identifier, &user.Password,&user.Id)
 
 	if err != nil {
 		return nil, errors.New("email or password not valid")
