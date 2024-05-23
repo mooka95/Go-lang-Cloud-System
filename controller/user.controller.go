@@ -3,7 +3,6 @@ package controller
 import (
 	"CloudSystem/models"
 	"CloudSystem/utils"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,35 +24,41 @@ func RegisterUser(context *gin.Context) {
 
 	context.JSON(http.StatusCreated, gin.H{"message": "user created Successfully", "userId": userIdentifier})
 }
-func LoginUser(context *gin.Context){
+func LoginUser(context *gin.Context) {
 	// extract body
-body,err:= utils.ExtractBodyFromRequest(context.Request.Body)
+	body, err := utils.ExtractBodyFromRequest(context.Request.Body)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "SomeThing Went Wrong"})
 		return
 	}
-	//check if email or password 
-email:=body["email"].(string)
-password:=body["password"].(string)
-	//get email and password 
-user,err:=	models.GetUserByEmail(email)
-if err != nil {
-	fmt.Println(err)
-	context.JSON(http.StatusUnauthorized, gin.H{"message": "email or password invalid"})
-	return
-}
-//validate credintials 
-err =user.ValidatePassword(password)
-if err != nil {
-	context.JSON(http.StatusUnauthorized, gin.H{"message": "email or password invalid"})
-	return
-}
-//generate token and get response
-token, err:=utils.GenerateToken(user.Email,user.Identifier)
-if err != nil {
-	context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user."})
-	return
-}
+	//check if email or password
+	email, isEmailExists := body["email"]
+	password, isPasswordExists := body["password"]
+	if !isEmailExists {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Missing email in the request body"})
+		return
+	}
+	if !isPasswordExists {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Missing Password in the request body"})
+		return
+	}
+	user, err := models.GetUserByEmail(email.(string))
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "email or password invalid"})
+		return
+	}
+	//validate credintials
+	err = user.ValidatePassword(password.(string))
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "email or password invalid"})
+		return
+	}
+	//generate token and get response
+	token, err := utils.GenerateToken(user.Email, user.Identifier)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user."})
+		return
+	}
 
-context.JSON(http.StatusOK, gin.H{"message": "Login successful!","token":token})
+	context.JSON(http.StatusOK, gin.H{"message": "Login successful!", "token": token})
 }
