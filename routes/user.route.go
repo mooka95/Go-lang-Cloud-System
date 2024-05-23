@@ -11,4 +11,5 @@ func RegisterUserRoutes(router *gin.Engine) {
 	{
 		UserGroup.POST("/", controller.RegisterUser)
 	}
+	router.POST("/login",controller.LoginUser)
 }

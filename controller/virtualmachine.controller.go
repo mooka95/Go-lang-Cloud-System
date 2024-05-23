@@ -87,3 +87,5 @@ func DeleteVirtualMachine(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "VirtualMachine deleted successfully!"})
 
 }
+
+
