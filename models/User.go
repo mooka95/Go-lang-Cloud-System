@@ -13,7 +13,7 @@ type User struct {
 	Id int64
 	Email      string `json:"email" binding:"required,email"`
 	Password   string `json:"password" binding:"required"`
-	FirstName  string
+	FirstName  string 
 	LastName   string
 	Identifier string
 }

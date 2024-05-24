@@ -93,3 +93,50 @@ func DeleteVirtualMachine(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "VirtualMachine deleted successfully!"})
 
 }
+func AttachVirtualMachineToFirewall(context *gin.Context) {
+	// getBody data
+	body, err := utils.ExtractBodyFromRequest(context.Request.Body)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "SomeThing Went Wrong"})
+		return
+	}
+	vmId, vmIdExists := body["virtualmachineId"]
+
+	if !vmIdExists {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Missing virtualmachineId in the request body"})
+		return
+	}
+	firewallId, firewallIdExists := body["firewallId"]
+
+	if !firewallIdExists {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Missing firewallId in the request body"})
+		return
+	}
+	//check if virtualmachine and firewall exist on
+	var virtualMachine *models.VirtualMachine
+	var firewall *models.Firewall
+	userId := context.GetInt64("userId")
+	firewall, err = models.GetFirewallByID(firewallId.(string))
+	if err != nil || (firewall.UserId != userId) {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "firewall not exist on user account"})
+		return
+	}
+	virtualMachine, err = models.GetVirtualMachineByID(vmId.(string))
+	if err != nil || (virtualMachine.UserId != userId) {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "virtualmachine not exist on user account"})
+		return
+	}
+	//check if firewalAlreadyAttachedToVm
+	// isVirtualMachineAttachedTothisFirewall:=firewall.CheckIfFirewallAttachedToVirtualMachine(virtualMachine.Identifier)
+	//attach virtualMachine to firewall
+
+	err = virtualMachine.AttachVirtualMachineToFirewall(firewall.Id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "can't attach firewall to virtualmachine"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "VirtualMachine attached to firewall successfully!"})
+
+}

@@ -21,6 +21,7 @@ func RegisterUser(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create user. Try again later."})
 		return
 	}
+	//add ddress
 
 	context.JSON(http.StatusCreated, gin.H{"message": "user created Successfully", "userId": userIdentifier})
 }

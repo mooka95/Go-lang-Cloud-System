@@ -7,6 +7,7 @@ func RegisterRoutes() *gin.Engine {
 	RegisterVirtualMachinesRoutes(router)
 	RegisterUserRoutes(router)
 	RegisterFirewallRoutes(router)
+	RegisterAddressRoutes(router)
 
 	return router
 }

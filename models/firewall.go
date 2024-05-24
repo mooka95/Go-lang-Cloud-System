@@ -12,7 +12,8 @@ type Firewall struct {
 	Name           string `json:"name" binding:"required"`
 	Identifier     string
 	UserIdentifier string
-	UserId int64
+	UserId         int64
+	Id             int64
 }
 
 func NewFirewall(name string) *Firewall {
@@ -44,7 +45,7 @@ func GetAllFirewalls() ([]Firewall, error) {
 
 	for rows.Next() {
 		var firewall Firewall
-		err := rows.Scan(&firewall.Name, &firewall.Identifier, &firewall.UserIdentifier)
+		err := rows.Scan(&firewall.Name, &firewall.Identifier, &firewall.UserIdentifier, &firewall.UserId)
 
 		if err != nil {
 			return nil, err
@@ -58,7 +59,7 @@ func GetAllFirewalls() ([]Firewall, error) {
 func GetFirewallByID(identifier string) (*Firewall, error) {
 	row := database.DB.QueryRow(queries.QueryFirewallMap["getFirewallById"], identifier)
 	var firewall Firewall
-	err := row.Scan(&firewall.Name, &firewall.Identifier, &firewall.UserIdentifier)
+	err := row.Scan(&firewall.Id, &firewall.Name, &firewall.Identifier, &firewall.UserIdentifier, &firewall.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -77,8 +78,8 @@ func (firewall *Firewall) DeleteFirewall() error {
 	_, err = stmt.Exec(firewall.Identifier)
 	return err
 }
-func GetFirewallByNameAndUserId(userId int64, firewallName string) (*Firewall, error){
-	row := database.DB.QueryRow(queries.QueryFirewallMap["getFirewallByNameAndUserId"], firewallName,userId)
+func GetFirewallByNameAndUserId(userId int64, firewallName string) (*Firewall, error) {
+	row := database.DB.QueryRow(queries.QueryFirewallMap["getFirewallByNameAndUserId"], firewallName, userId)
 	var firewall Firewall
 	err := row.Scan(&firewall.Name)
 	if err != nil {
@@ -86,6 +87,16 @@ func GetFirewallByNameAndUserId(userId int64, firewallName string) (*Firewall, e
 	}
 
 	return &firewall, nil
+}
+func (firewall *Firewall) CheckIfFirewallAttachedToVirtualMachine(vmId string) bool {
+	row := database.DB.QueryRow(queries.QueryFirewallMap["getFirewallAttachedVirtualMachine"], firewall.Identifier, vmId)
+
+	err := row.Scan(&firewall.Name)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 // func GetFirewallByIdAndName(identifier string) (*VirtualMachine, error) {

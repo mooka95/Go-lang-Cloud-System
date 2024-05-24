@@ -14,7 +14,8 @@ type VirtualMachine struct {
 	Identifier      string `json:"identifier"`
 	OperatingSystem string `json:"operatingSystem" binding:"required"`
 	UserIdentifier  string
-	UserId          int64
+	UserId          int64 `json:"userId,omitempty"`
+	Id              int64 `json:"id,omitempty"`
 }
 
 func NewVirtualMachine(hostName, operatingSystem, UserIdentifier string, isActive bool) *VirtualMachine {
@@ -66,7 +67,7 @@ func GetAllVirtualMachines() ([]VirtualMachine, error) {
 func GetVirtualMachineByID(identifier string) (*VirtualMachine, error) {
 	row := database.DB.QueryRow(queries.QueryMap["getVirtualMachineById"], identifier)
 	var virtualMachine VirtualMachine
-	err := row.Scan(&virtualMachine.Identifier, &virtualMachine.IsActive, &virtualMachine.OperatingSystem, &virtualMachine.HostName, &virtualMachine.UserIdentifier)
+	err := row.Scan(&virtualMachine.Id, &virtualMachine.Identifier, &virtualMachine.IsActive, &virtualMachine.OperatingSystem, &virtualMachine.HostName, &virtualMachine.UserIdentifier, &virtualMachine.UserId)
 	if err != nil {
 		fmt.Println("err", err)
 		return nil, err
@@ -100,4 +101,15 @@ func (vm *VirtualMachine) UpdateVirtualMachineActiveState(isActive bool) error {
 
 	_, err = stmt.Exec(isActive, vm.Identifier)
 	return err
+}
+func (vm *VirtualMachine) AttachVirtualMachineToFirewall(firewallId int64) error {
+	var id int
+	errQuery := database.DB.QueryRow(queries.QueryMap["AttachVirtualMachineToFirewall"], vm.Id, firewallId, uuid.New()).Scan(&id)
+	if errQuery != nil {
+		return errQuery
+	}
+
+	fmt.Println("Data inserted successfully!")
+
+	return nil
 }
