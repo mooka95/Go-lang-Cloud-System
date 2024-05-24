@@ -41,6 +41,7 @@ func GetFirewallByID(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch Firewall. Try again later."})
 		return
 	}
+	firewall.Id, firewall.UserId = 0, 0
 	context.JSON(http.StatusOK, firewall)
 }
 func DeleteFirewall(context *gin.Context) {

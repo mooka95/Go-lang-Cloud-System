@@ -68,6 +68,7 @@ func GetVirtualMachineByID(identifier string) (*VirtualMachine, error) {
 	row := database.DB.QueryRow(queries.QueryMap["getVirtualMachineById"], identifier)
 	var virtualMachine VirtualMachine
 	err := row.Scan(&virtualMachine.Id, &virtualMachine.Identifier, &virtualMachine.IsActive, &virtualMachine.OperatingSystem, &virtualMachine.HostName, &virtualMachine.UserIdentifier, &virtualMachine.UserId)
+
 	if err != nil {
 		fmt.Println("err", err)
 		return nil, err

@@ -12,8 +12,8 @@ type Firewall struct {
 	Name           string `json:"name" binding:"required"`
 	Identifier     string
 	UserIdentifier string
-	UserId         int64
-	Id             int64
+	UserId         int64  `json:"userId,omitempty"`
+	Id             int64 `json:"id,omitempty"`
 }
 
 func NewFirewall(name string) *Firewall {
@@ -45,12 +45,12 @@ func GetAllFirewalls() ([]Firewall, error) {
 
 	for rows.Next() {
 		var firewall Firewall
-		err := rows.Scan(&firewall.Name, &firewall.Identifier, &firewall.UserIdentifier, &firewall.UserId)
+		err := rows.Scan(&firewall.Id, &firewall.Name, &firewall.Identifier, &firewall.UserIdentifier)
 
 		if err != nil {
 			return nil, err
 		}
-
+	
 		firewalls = append(firewalls, firewall)
 	}
 

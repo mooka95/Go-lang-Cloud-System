@@ -37,12 +37,13 @@ func GetAllVirtualMachines(context *gin.Context) {
 func GetVirtualMachineByID(context *gin.Context) {
 	// Extract the path parameter
 	id := context.Param("id")
-	virtualMachines, err := models.GetVirtualMachineByID(id)
+	virtualMachine, err := models.GetVirtualMachineByID(id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch VirtualMachine. Try again later."})
 		return
 	}
-	context.JSON(http.StatusOK, virtualMachines)
+	virtualMachine.Id, virtualMachine.UserId = 0, 0
+	context.JSON(http.StatusOK, virtualMachine)
 }
 func UpdateVirtualMachineActiveState(context *gin.Context) {
 	body, err := utils.ExtractBodyFromRequest(context.Request.Body)
