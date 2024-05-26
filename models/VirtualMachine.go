@@ -42,8 +42,8 @@ func (vm *VirtualMachine) InsertVirtualMachine() (*string, error) {
 
 	return &id, nil
 }
-func GetAllVirtualMachines() ([]VirtualMachine, error) {
-	rows, err := database.DB.Query(queries.QueryMap["getAllVirtualMachines"])
+func GetAllVirtualMachines(userId int64) ([]VirtualMachine, error) {
+	rows, err := database.DB.Query(queries.QueryMap["getAllVirtualMachines"], userId)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +64,8 @@ func GetAllVirtualMachines() ([]VirtualMachine, error) {
 
 	return virtualMachines, nil
 }
-func GetVirtualMachineByID(identifier string) (*VirtualMachine, error) {
-	row := database.DB.QueryRow(queries.QueryMap["getVirtualMachineById"], identifier)
+func GetVirtualMachineByID(identifier string, userId int64) (*VirtualMachine, error) {
+	row := database.DB.QueryRow(queries.QueryMap["getVirtualMachineById"], identifier, userId)
 	var virtualMachine VirtualMachine
 	err := row.Scan(&virtualMachine.Id, &virtualMachine.Identifier, &virtualMachine.IsActive, &virtualMachine.OperatingSystem, &virtualMachine.HostName, &virtualMachine.UserIdentifier, &virtualMachine.UserId)
 

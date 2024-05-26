@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"CloudSystem/database"
 	"CloudSystem/models"
 	"CloudSystem/utils"
 	"net/http"
@@ -9,21 +10,43 @@ import (
 )
 
 func RegisterUser(context *gin.Context) {
+	//start transaction
+	currentConnection, err := database.DB.Begin()
+	if err != nil {
+
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+	}
+	defer func() {
+		if err != nil {
+			currentConnection.Rollback()
+		}
+	}()
+
 	var user models.User
-	err := context.ShouldBindJSON(&user)
+	err = context.ShouldBindJSON(&user)
+	user.Id = context.GetInt64("userId")
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data"})
 		return
 	}
-	userIdentifier, err := user.AddUser()
+	_, err = user.AddUser(currentConnection)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create user. Try again later."})
 		return
 	}
-	//add ddress
+	_, err = user.AddUserAddress(currentConnection)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create user. Try again later."})
+		return
+	}
+	err = currentConnection.Commit()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
 
-	context.JSON(http.StatusCreated, gin.H{"message": "user created Successfully", "userId": userIdentifier})
+	context.JSON(http.StatusCreated, gin.H{"message": "user created Successfully", "userId": user.Identifier})
 }
 func LoginUser(context *gin.Context) {
 	// extract body
