@@ -11,6 +11,7 @@ import (
 
 func RegisterUser(context *gin.Context) {
 	//start transaction
+	//check if email exists
 	currentConnection, err := database.DB.Begin()
 	if err != nil {
 
@@ -24,10 +25,14 @@ func RegisterUser(context *gin.Context) {
 
 	var user models.User
 	err = context.ShouldBindJSON(&user)
-	user.Id = context.GetInt64("userId")
-
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data"})
+		return
+	}
+	// user.Id = context.GetInt64("userId")
+	_, err = models.GetUserByEmail(user.Email)
+	if err == nil {
+		context.JSON(http.StatusConflict, gin.H{"message": "email already exists"})
 		return
 	}
 	_, err = user.AddUser(currentConnection)
