@@ -12,7 +12,6 @@ import (
 func AddVirtualMachine(context *gin.Context) {
 	var virtualMachine models.VirtualMachine
 	err := context.ShouldBindJSON(&virtualMachine)
-//
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data"})
 		return
@@ -41,45 +40,46 @@ func GetVirtualMachineByID(context *gin.Context) {
 	userId := context.GetInt64("userId")
 	virtualMachine, err := models.GetVirtualMachineByID(id, userId)
 	if err != nil {
-		context.JSON(http.StatusNotFound, gin.H{"message": "Could not fetch VirtualMachine. Try again later."})
+		context.JSON(http.StatusNotFound, gin.H{"message": "virtual machine not exist in your account "})
 		return
 	}
 	virtualMachine.Id, virtualMachine.UserId = 0, 0
 	context.JSON(http.StatusOK, virtualMachine)
 }
-func UpdateVirtualMachineActiveState(context *gin.Context) {
-	body, err := utils.ExtractBodyFromRequest(context.Request.Body)
+func ActivateVirtualMachine(context *gin.Context) {
+	// body, err := utils.ExtractBodyFromRequest(context.Request.Body)
 
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "SomeThing Went Wrong"})
-		return
-	}
-	id, IdExists := body["id"]
+	// if err != nil {
+	// 	context.JSON(http.StatusInternalServerError, gin.H{"message": "SomeThing Went Wrong"})
+	// 	return
+	// }
+	// id, IdExists := body["id"]
 
-	if !IdExists {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Missing id in the request body"})
-		return
-	}
+	// if !IdExists {
+	// 	context.JSON(http.StatusBadRequest, gin.H{"message": "Missing id in the request body"})
+	// 	return
+	// }
+	virtualMachineId := context.Param("id")
 	userId := context.GetInt64("userId")
-	virtualMachine, err := models.GetVirtualMachineByID(id.(string), userId)
+	virtualMachine, err := models.GetVirtualMachineByID(virtualMachineId, userId)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"message": "this virtual machine not exist "})
 		return
 	}
-	if virtualMachine.IsActive == body["isActive"].(bool) && virtualMachine.IsActive {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Virtual machine is already active "})
-		return
-	} else if virtualMachine.IsActive == body["isActive"].(bool) && !virtualMachine.IsActive {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Virtual machine is already not Active "})
-		return
-	}
-	err = virtualMachine.UpdateVirtualMachineActiveState(body["isActive"].(bool))
+	// if virtualMachine.IsActive == body["isActive"].(bool) && virtualMachine.IsActive {
+	// 	context.JSON(http.StatusBadRequest, gin.H{"message": "Virtual machine is already active "})
+	// 	return
+	// } else if virtualMachine.IsActive == body["isActive"].(bool) && !virtualMachine.IsActive {
+	// 	context.JSON(http.StatusBadRequest, gin.H{"message": "Virtual machine is already not Active "})
+	// 	return
+	// }
+	err = virtualMachine.UpdateVirtualMachineActiveState(true)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "can't Update VirtualMachine "})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf(" virtualMachine with id: %s updated successfully ", virtualMachine.Identifier)})
+	context.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf(" virtualMachine with id: %s Activated successfully ", virtualMachine.Identifier)})
 }
 func DeleteVirtualMachine(context *gin.Context) {
 	virtualMachineId := context.Param("id")

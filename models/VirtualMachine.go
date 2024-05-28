@@ -61,6 +61,9 @@ func GetAllVirtualMachines(userId int64) ([]VirtualMachine, error) {
 
 		virtualMachines = append(virtualMachines, vm)
 	}
+	if len(virtualMachines) == 0 {
+		return []VirtualMachine{}, nil
+	}
 
 	return virtualMachines, nil
 }
