@@ -16,6 +16,7 @@ func RegisterVirtualMachinesRoutes(router *gin.Engine) {
         virtualmachineGroup.GET("/:id",controller.GetVirtualMachineByID)
         virtualmachineGroup.POST("/firewall/attach",controller.AttachVirtualMachineToFirewall)
         virtualmachineGroup.PATCH("/power/active/:id",controller.ActivateVirtualMachine)
+        virtualmachineGroup.PATCH("/power/deactivate/:id",controller.DeactivateVirtualMachine)
         virtualmachineGroup.DELETE("/:id",controller.DeleteVirtualMachine)
     }
 }

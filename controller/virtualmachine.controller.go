@@ -81,6 +81,22 @@ func ActivateVirtualMachine(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf(" virtualMachine with id: %s Activated successfully ", virtualMachine.Identifier)})
 }
+func DeactivateVirtualMachine(context *gin.Context) {
+	virtualMachineId := context.Param("id")
+	userId := context.GetInt64("userId")
+	virtualMachine, err := models.GetVirtualMachineByID(virtualMachineId, userId)
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": "this virtual machine not exist "})
+		return
+	}
+	err = virtualMachine.UpdateVirtualMachineActiveState(false)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "can't Update VirtualMachine "})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf(" virtualMachine with id: %s Deactivated successfully ", virtualMachine.Identifier)})
+}
 func DeleteVirtualMachine(context *gin.Context) {
 	virtualMachineId := context.Param("id")
 	userId := context.GetInt64("userId")
@@ -123,12 +139,12 @@ func AttachVirtualMachineToFirewall(context *gin.Context) {
 	userId := context.GetInt64("userId")
 	firewall, err = models.GetFirewallByID(firewallId.(string))
 	if err != nil || (firewall.UserId != userId) {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "firewall not exist on user account"})
+		context.JSON(http.StatusNotFound, gin.H{"message": "firewall not exist on user account"})
 		return
 	}
 	virtualMachine, err = models.GetVirtualMachineByID(vmId.(string), userId)
 	if err != nil || (virtualMachine.UserId != userId) {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "virtualmachine not exist on user account"})
+		context.JSON(http.StatusNotFound, gin.H{"message": "virtualmachine not exist on user account"})
 		return
 	}
 

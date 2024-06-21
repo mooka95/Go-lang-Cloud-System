@@ -6,6 +6,7 @@ import (
 	"CloudSystem/utils"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -35,6 +36,7 @@ func NewUser(email, password, firstName, lastName string) *User {
 func (user *User) AddUser(currentConnection *sql.Tx) (*User, error) {
 	sqlStatement := `INSERT INTO users (email, password,first_name, last_name, identifier) VALUES ($1, $2,$3,$4, $5) RETURNING identifier,id`
 	stmt, err := currentConnection.Prepare(sqlStatement)
+	fmt.Println("err from here")
 
 	if err != nil {
 		return nil, err
