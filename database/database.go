@@ -1,4 +1,3 @@
-// db/db.go
 package database
 
 import (
@@ -20,12 +19,12 @@ func Init() {
     var err error
     DB, err = sql.Open("postgres", connectionString)
     if err != nil {
-        log.Panic("Unable to connect to database: %v\n", err)
+        log.Panicf("Unable to connect to database: %v\n", err)
     }
 
     // Configure the connection pool
     DB.SetMaxOpenConns(10)
-    DB.SetMaxIdleConns(5) //his sets the maximum number of idle (unused) connections that the pool will keep open.
+    DB.SetMaxIdleConns(5)
     DB.SetConnMaxLifetime(30 * time.Minute)
 
     // Verify the connection

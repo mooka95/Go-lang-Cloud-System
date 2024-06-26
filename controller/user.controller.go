@@ -123,6 +123,7 @@ func SearchWords(context *gin.Context) {
 	}
 
 	var wg sync.WaitGroup
+	var mu sync.Mutex
 	for _, word := range WordsRequestBody.Words {
 		searchCounts[strings.ToLower(word)]++
 		if err := writeJSONToFile(historyFilePath, searchCounts); err != nil {
@@ -131,8 +132,8 @@ func SearchWords(context *gin.Context) {
 		}
 		wg.Add(1)
 		go func(word string) {
-			defer wg.Done()
-			CalculateTFAndDF(files, word, wordChan, searchCounts[strings.ToLower(word)])
+			defer wg.Done() // it decrement wait group by one
+			CalculateTFAndDF(files, word, wordChan, searchCounts[strings.ToLower(word)], &mu)
 		}(word)
 	}
 
@@ -141,14 +142,13 @@ func SearchWords(context *gin.Context) {
 		close(wordChan)
 	}()
 	for data := range wordChan {
-		fmt.Println(data)
 		result[data.name] = data
 	}
 
 	context.JSON(http.StatusOK, result)
 }
 
-func CalculateTFAndDF(files [3]string, word string, wordChan chan Word, wordHistory int) {
+func CalculateTFAndDF(files [3]string, word string, wordChan chan Word, wordHistory int, mu *sync.Mutex) {
 	var wordData Word
 	wordData.name = word
 	wordData.SearchCountHistory = int64(wordHistory)
@@ -158,10 +158,12 @@ func CalculateTFAndDF(files [3]string, word string, wordChan chan Word, wordHist
 			fmt.Println(err)
 		}
 		fileTf, containsWord := searchWordInContent(word, string(content))
+		mu.Lock()
 		wordData.TotalFrequencyInAllFiles += int64(fileTf)
 		if containsWord {
 			wordData.DocumentFrequencyInAllFiles += 1
 		}
+		mu.Unlock()
 	}
 	wordChan <- wordData
 

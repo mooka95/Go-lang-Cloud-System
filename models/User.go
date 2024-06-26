@@ -18,8 +18,8 @@ type User struct {
 	City       string `json:"city" binding:"required"`
 	Street     string `json:"street" binding:"required"`
 	Country    string `json:"country" binding:"required"`
-	FirstName  string
-	LastName   string
+	FirstName  string `json:"firstName" binding:"required"`
+	LastName   string `json:"lastName" binding:"required"`
 	Identifier string
 }
 
