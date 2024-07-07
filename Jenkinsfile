@@ -5,6 +5,7 @@ pipeline {
         // Define Docker Hub credentials and repository details
         DOCKERHUB_CREDENTIALS = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d')
         DOCKERHUB_REPO = 'mooka95/cloud-go'
+        COMPOSE_PROJECT_NAME = 'app'
     }
 
     stages {
