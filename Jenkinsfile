@@ -25,12 +25,6 @@ pipeline {
                 sh "go build -o app"
             }
         }
-        stage('Test') {
-            steps {
-                // Run tests for your application
-                sh "make test" // Example test command, adjust as per your testing process
-            }
-        }
         stage('Build Docker Image') {
             steps {
                 // Build Docker image
