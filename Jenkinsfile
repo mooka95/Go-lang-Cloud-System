@@ -30,6 +30,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                                        // Install jq if not already installed
+                    sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
                     // Login to Docker 76a0702f-d9c7-46ae-973e-c9cbe932710dstored in Jenkins
                     sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                     
