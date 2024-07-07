@@ -19,8 +19,8 @@ pipeline {
         }
         stage('Build') {
             steps {
-                // Build your application
-                sh "make build" // Example build command, adjust as per your build process
+                // Build your Go application
+                sh "go build -o app"
             }
         }
         stage('Test') {
