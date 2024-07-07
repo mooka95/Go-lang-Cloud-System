@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS_USR = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d').username
-        DOCKERHUB_CREDENTIALS_PSW = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d').password
+      DOCKERHUB_CREDENTIALS = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d')
         DOCKERHUB_REPO = 'mooka95/cloud-go'
         COMPOSE_PROJECT_NAME = 'app'
     }
