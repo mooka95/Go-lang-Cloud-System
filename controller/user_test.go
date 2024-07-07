@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"CloudSystem/controller"
 	"CloudSystem/database"
 	"database/sql"
 	"log"
@@ -36,7 +35,7 @@ func TestLogin(t *testing.T) {
 	defer database.DB.Close()
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST("/login", controller.LoginUser)
+	router.POST("/login", LoginUser)
 	server := httptest.NewServer(router)
 	defer server.Close()
 
@@ -70,7 +69,7 @@ func TestRegisterUser(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST("/user", controller.RegisterUser)
+	router.POST("/user", RegisterUser)
 	server := httptest.NewServer(router)
 	defer server.Close()
 
@@ -78,7 +77,7 @@ func TestRegisterUser(t *testing.T) {
 
 	// Test user creation
 	e.POST("/user").WithJSON(map[string]interface{}{
-		"email":     "okaysqqqqs.22@gmail.com",
+		"email":     "oka.ys.qqqqs.22@gmail.com",
 		"password":  "Password1234*",
 		"firstName": "Luca",
 		"lastName":  "Modric",

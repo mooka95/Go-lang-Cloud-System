@@ -11,11 +11,9 @@ RUN go mod download
 # Copy the source code into the container
 COPY . .
 
-# Install fresh (a tool to automatically reload your application when source files change)
-RUN go install github.com/pilu/fresh@latest
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
-# Command to run fresh
-CMD ["fresh"]
+# Command to run the Go application
+CMD ["go", "run", "."]

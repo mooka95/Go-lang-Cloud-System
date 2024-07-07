@@ -1,17 +1,15 @@
 package utils
 import (
-	"CloudSystem/utils"
 	"testing"
 	"time"
 	"github.com/golang-jwt/jwt/v5"
 
 )
-const secretKey = "supersecret"
 func TestGenerateToken(t *testing.T) {
 	email := "test@example.com"
 	userId := int64(12345)
 
-	tokenString, err := utils.GenerateToken(email, userId)
+	tokenString, err := GenerateToken(email, userId)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
