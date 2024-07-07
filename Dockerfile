@@ -13,7 +13,7 @@ COPY . .
 
 
 # Expose port 8080 to the outside world
-EXPOSE 8080
+EXPOSE 8090
 
 # Command to run the Go application
 CMD ["go", "run", "."]
