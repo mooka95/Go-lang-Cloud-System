@@ -6,7 +6,7 @@ services:
       context: .
     image: mooka95/cloud-go
     ports:
-      - "8080:8080"
+      - "8090:8090"
     environment:
       - DB_HOST=db
       - DB_PORT=5432
