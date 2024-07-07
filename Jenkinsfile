@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Define Docker Hub credentials and repository details
-        DOCKERHUB_CREDENTIALS = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d')
+        DOCKERHUB_CREDENTIALS_USR = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d').username
+        DOCKERHUB_CREDENTIALS_PSW = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d').password
         DOCKERHUB_REPO = 'mooka95/cloud-go'
         COMPOSE_PROJECT_NAME = 'app'
     }
@@ -16,22 +16,18 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
                 script {
-                    // Install jq if not already installed
-                    sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
-                    
                     // Login to Docker Hub
                     sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                     
-                    // Get the latest version tag from Docker Hub
+                    // Determine the new tag by incrementing the latest tag or starting from v1
                     def latestTag = sh(
                         script: "curl -s -u ${DOCKERHUB_CREDENTIALS_USR}:${DOCKERHUB_CREDENTIALS_PSW} https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=1 | jq -r '.results[0].name'", 
                         returnStdout: true
                     ).trim()
                     
-                    // Determine the new tag by incrementing the latest tag or starting from v1
                     def newTag = 'v1'
                     if (latestTag =~ /^v\d+$/) {
                         newTag = 'v' + (latestTag.replace('v', '').toInteger() + 1)
@@ -39,26 +35,18 @@ pipeline {
 
                     // Build the Docker image with the new tag
                     sh "docker build -t ${DOCKERHUB_REPO}:${newTag} ."
+                    
                     // Push the Docker image to Docker Hub
                     sh "docker push ${DOCKERHUB_REPO}:${newTag}"
-                    
-                    // Update the docker-compose.yml file with the new image tag
-                    sh """
-                        sed -i 's|image: ${DOCKERHUB_REPO}:.*|image: ${DOCKERHUB_REPO}:${newTag}|g' docker-compose.yaml
-                    """
                 }
             }
         }
 
         stage('Deploy') {
-            when {
-                // Only run the Deploy stage if the previous stages succeeded
-                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-            }
             steps {
                 echo 'Deploying application...'
-                // Use Docker Compose to deploy the new image
-                sh 'docker-compose down && docker-compose up -d'
+                // Ensure Docker pulls the latest image before deploying
+                sh "docker-compose down && docker-compose pull && docker-compose up -d"
             }
         }
     }
