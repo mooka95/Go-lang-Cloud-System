@@ -56,7 +56,7 @@ func Init() {
 // createTables creates necessary tables if they do not exist
 func createTables() error {
 	createTableStmt := `
-    CREATE TYPE IF NOT EXISTS os_type AS ENUM ('Linux', 'Windows', 'MacOS');
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
         CREATE TABLE IF NOT EXISTS public.users (
             id SERIAL PRIMARY KEY,
             first_name VARCHAR(20) NOT NULL,
