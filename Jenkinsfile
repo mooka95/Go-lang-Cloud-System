@@ -2,7 +2,8 @@ pipeline {
     agent any
     
     environment {
-        COMPOSE_PROJECT_NAME = 'myapp'
+         PATH = "/usr/local/go/bin:$PATH"
+        COMPOSE_PROJECT_NAME = 'app'
         VERSION_MAJOR = 1
         VERSION_MINOR = 0
         VERSION_PATCH = 0
@@ -19,6 +20,7 @@ pipeline {
         }
         stage('Build') {
             steps {
+                    sh 'go version'
                 // Build your Go application
                 sh "go build -o app"
             }
