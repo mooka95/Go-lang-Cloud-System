@@ -44,7 +44,7 @@ pipeline {
                     
                     // Update the docker-compose.yml file with the new image tag
                     sh """
-                        sed -i 's|image: ${DOCKERHUB_REPO}:.*|image: ${DOCKERHUB_REPO}:${newTag}|g' docker-compose.yml
+                        sed -i 's|image: ${DOCKERHUB_REPO}:.*|image: ${DOCKERHUB_REPO}:${newTag}|g' docker-compose.yaml
                     """
                 }
             }
