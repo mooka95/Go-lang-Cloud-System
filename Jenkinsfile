@@ -27,6 +27,7 @@ pipeline {
             steps {
                 // Build Docker image
                 script {
+                    sh "docker login -u mooka95 -p Torm22torm*"
                                         // Build the Docker image
                     sh "docker build -t ${IMAGE_TAG}:${version} ."
                     
