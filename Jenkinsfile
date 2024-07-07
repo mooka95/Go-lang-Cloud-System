@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define Docker Hub credentials and repository details
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_CREDENTIALS = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d')
         DOCKERHUB_REPO = 'mooka95/cloud-go'
     }
 
@@ -29,7 +29,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Login to Docker Hub using credentials stored in Jenkins
+                    // Login to Docker 76a0702f-d9c7-46ae-973e-c9cbe932710dstored in Jenkins
                     sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                     
                     // Get the latest version tag from Docker Hub
