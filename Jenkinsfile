@@ -16,16 +16,16 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                script {
-                    // Ensure Go is installed and available
-                    sh 'go version'
-                    // Build the Go application
-                    sh 'go build -o app'
-                }
-            }
-        }
+        // stage('Build') {
+        //     steps {
+        //         script {
+        //             // Ensure Go is installed and available
+        //             sh 'go version'
+        //             // Build the Go application
+        //             sh 'go build -o app'
+        //         }
+        //     }
+        // }
 
         stage('Build Docker Image') {
             steps {
