@@ -4,11 +4,9 @@ pipeline {
     environment {
          PATH = "/usr/local/go/bin:$PATH"
         COMPOSE_PROJECT_NAME = 'app'
-        VERSION_MAJOR = 1
-        VERSION_MINOR = 0
-        VERSION_PATCH = 0
+        def version = 1
         GIT_COMMIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-        IMAGE_TAG = "mooka95/cloud-go:${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-${GIT_COMMIT_SHA}"
+        IMAGE_TAG = "mooka95/cloud-go"
     }
     
     stages {
@@ -29,7 +27,18 @@ pipeline {
             steps {
                 // Build Docker image
                 script {
-                    sh "docker build -t ${IMAGE_TAG} ."
+                                        // Build the Docker image
+                    sh "docker build -t ${IMAGE_TAG}:${version} ."
+                    
+                    // Tag the Docker image with current version
+                    sh "docker tag ${IMAGE_TAG}:${version} ${IMAGE_TAG}:v${version}"
+                    
+                    // Push the Docker image to Docker Hub
+                    sh "docker push ${IMAGE_TAG}:${version}"
+                    sh "docker push ${IMAGE_TAG}:v${version}"
+                    
+                    // Increment version for next build
+                    version++
                 }
             }
         }
