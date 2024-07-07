@@ -16,23 +16,13 @@ pipeline {
             }
         }
 
-        // stage('Build') {
-        //     steps {
-        //         script {
-        //             // Ensure Go is installed and available
-        //             sh 'go version'
-        //             // Build the Go application
-        //             sh 'go build -o app'
-        //         }
-        //     }
-        // }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                                        // Install jq if not already installed
+                    // Install jq if not already installed
                     sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
-                    // Login to Docker 76a0702f-d9c7-46ae-973e-c9cbe932710dstored in Jenkins
+                    
+                    // Login to Docker Hub
                     sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                     
                     // Get the latest version tag from Docker Hub
@@ -51,6 +41,11 @@ pipeline {
                     sh "docker build -t ${DOCKERHUB_REPO}:${newTag} ."
                     // Push the Docker image to Docker Hub
                     sh "docker push ${DOCKERHUB_REPO}:${newTag}"
+                    
+                    // Update the docker-compose.yml file with the new image tag
+                    sh """
+                        sed -i 's|image: ${DOCKERHUB_REPO}:.*|image: ${DOCKERHUB_REPO}:${newTag}|g' docker-compose.yml
+                    """
                 }
             }
         }
@@ -62,9 +57,8 @@ pipeline {
             }
             steps {
                 echo 'Deploying application...'
-                // Add your deployment steps here, such as using Docker Compose to deploy the new image
-                // Example:
-                // sh 'docker-compose up -d'
+                // Use Docker Compose to deploy the new image
+                sh 'docker-compose down && docker-compose up -d'
             }
         }
     }
