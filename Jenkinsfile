@@ -2,38 +2,55 @@ pipeline {
     agent any
     
     environment {
-        COMPOSE_PROJECT_NAME = 'GoCloud'
-        IMAGE_TAG = mooka95/cloud-go"
+        COMPOSE_PROJECT_NAME = 'myapp'
+        VERSION_MAJOR = 1
+        VERSION_MINOR = 0
+        VERSION_PATCH = 0
+        GIT_COMMIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        IMAGE_TAG = "mooka95/cloud-go:${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-${GIT_COMMIT_SHA}"
     }
     
     stages {
-        stage('Build and Test') {
+        stage('Checkout') {
             steps {
-                // Clone the repository
+                // Checkout the repository from GitHub
                 checkout scm
-                
-                // Build and start services defined in docker-compose.yml
+            }
+        }
+        stage('Build') {
+            steps {
+                // Build your application
+                sh "make build" // Example build command, adjust as per your build process
+            }
+        }
+        stage('Test') {
+            steps {
+                // Run tests for your application
+                sh "make test" // Example test command, adjust as per your testing process
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                // Build Docker image
                 script {
-                    sh 'docker-compose -f docker-compose.yml build'
-                    sh 'docker-compose -f docker-compose.yml up -d'
+                    sh "docker build -t ${IMAGE_TAG} ."
                 }
             }
         }
         stage('Deploy') {
             steps {
-                // Deploy the application using Docker Compose
-                script {
-                    sh 'docker-compose -f docker-compose.yaml down'
-                    sh 'docker-compose -f docker-compose.yaml up -d'
-                }
+                // Deploy with Docker Compose or any deployment strategy
+                sh "docker-compose -f docker-compose.yaml up -d"
             }
         }
     }
+    
     post {
         success {
-            echo 'Pipeline succeeded! Clean up...'
-            // Clean up containers and networks
-            sh 'docker-compose -f docker-compose.yml down'
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
         }
     }
 }
