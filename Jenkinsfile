@@ -44,7 +44,7 @@ pipeline {
                     
                     // Replace the tag placeholder in docker-compose.yml with the new tag
                     sh """
-                        sed -i 's|${TAG}|${newTag}|g' docker-compose.yml
+                        sed -i 's|${TAG}|${newTag}|g' docker-compose.yaml
                     """
                 }
             }
