@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-    image: mooka95/cloud-go
+    image: mooka95/cloud-go:${TAG}
     ports:
       - "8090:8090"
     environment:
