@@ -11,62 +11,45 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout code from the repository
                 checkout scm
             }
         }
-
+        
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Install jq if not already installed
-                    sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
-                    
-                    // Login to Docker Hub
-                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                    
-                    // Get the latest version tag from Docker Hub
-                    def latestTag = sh(
-                        script: "curl -s -u ${DOCKERHUB_CREDENTIALS_USR}:${DOCKERHUB_CREDENTIALS_PSW} https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=1 | jq -r '.results[0].name'", 
-                        returnStdout: true
-                    ).trim()
-                    
-                    // Determine the new tag by incrementing the latest tag or starting from v1
-                    def newTag = 'v1'
-                    if (latestTag =~ /^v\d+$/) {
-                        newTag = 'v' + (latestTag.replace('v', '').toInteger() + 1)
+                    def currentTag = "v18"
+                    def newTag = currentTag // Change this logic if you need a different tag
+
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
+                        sh "docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin <<< $DOCKERHUB_CREDENTIALS_PSW"
+                        sh 'curl -s -u $DOCKERHUB_CREDENTIALS_USR:$DOCKERHUB_CREDENTIALS_PSW https://hub.docker.com/v2/repositories/mooka95/cloud-go/tags/?page_size=1 | jq -r .results[0].name'
+
+                        sh "docker build -t mooka95/cloud-go:${newTag} ."
+                        sh "docker push mooka95/cloud-go:${newTag}"
                     }
-
-                    // Build the Docker image with the new tag
-                    sh "docker build -t ${DOCKERHUB_REPO}:${newTag} ."
-                    // Push the Docker image to Docker Hub
-                    sh "docker push ${DOCKERHUB_REPO}:${newTag}"
                     
-                    // Set the TAG environment variable for use in subsequent stages
-                    env.TAG = newTag
-
-                    // Replace the tag placeholder in docker-compose.yml with the new tag
-                    sh 'sed -i "s|\\${TAG}|${newTag}|g" docker-compose.yaml'
+                    sh "sed -i 's|\${TAG}|${newTag}|g' docker-compose.yaml"
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    echo "Deploying application..."
+                    sh "docker-compose down"
+                    sh "docker-compose up -d"
                 }
             }
         }
 
-        stage('Deploy') {
-            when {
-                // Only run the Deploy stage if the previous stages succeeded
-                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-            }
-            steps {
-                echo 'Deploying application...'
-                // Use Docker Compose to deploy the new image
-                sh 'docker-compose down && docker-compose up -d'
-            }
-        }
-        
         stage('Get Running Containers') {
             steps {
-                // List running containers
-                sh 'docker ps'
+                script {
+                    def containers = sh(script: "docker ps", returnStdout: true)
+                    echo "Running containers: ${containers}"
+                }
             }
         }
     }
@@ -77,9 +60,6 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-        }
-        success {
-            echo 'Pipeline succeeded!'
         }
     }
 }
