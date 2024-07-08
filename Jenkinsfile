@@ -43,7 +43,7 @@ pipeline {
                     sh "docker push ${DOCKERHUB_REPO}:${newTag}"
                     
                     // Set the TAG environment variable for use in subsequent stages
-                    env.TAG = newTag
+                    // env.TAG = newTag
 
                     // Replace the tag placeholder in docker-compose.yml with the new tag
                     sh 'sed -i "s|\\${TAG}|${newTag}|g" docker-compose.yaml'
