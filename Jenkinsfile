@@ -40,7 +40,7 @@ pipeline {
                     // Build the Docker image with the new tag
                     sh "docker build -t ${DOCKERHUB_REPO}:${newTag} ."
                     // Push the Docker image to Docker Hub
-                    sh "docker push ${DOCKERHUB_REPO}:${newTag}"
+                    // sh "docker push ${DOCKERHUB_REPO}:${newTag}"
                     
                     // Set the TAG environment variable for use in subsequent stages
                     env.TAG = newTag
