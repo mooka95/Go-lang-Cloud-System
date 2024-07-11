@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     // Install jq if not already installed
-                    sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
+                    sh 'apt-get update && apt-get install -y jq'
                     
                     // Login to Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
