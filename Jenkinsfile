@@ -18,9 +18,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Install jq if not already installed
-                    sh 'apt-get update && apt-get install -y jq'
-                    
+                    // Update apt-get without using sudo
+                    sh 'sudo apt-get update'
+
+                    // Install jq without sudo
+                    sh 'sudo apt-get install -y jq'
+
                     // Login to Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
                         sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
