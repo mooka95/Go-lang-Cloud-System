@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        // Define Docker Hub credentials and repository details
         DOCKERHUB_CREDENTIALS = credentials('39269fd9-1944-4b99-93fe-53f198a1a0cf')
         DOCKERHUB_REPO = 'mooka95/cloud-go'
         COMPOSE_PROJECT_NAME = 'app'
@@ -18,16 +19,11 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Update apt-get without using sudo
-                    sh 'sudo apt-get update'
-
-                    // Install jq without sudo, using DEBIAN_FRONTEND to avoid prompts
-                    sh 'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jq'
-
+                    // Install jq if not already installed
+                    sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
+                    
                     // Login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
-                        sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                    }
+                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                     
                     // Get the latest version tag from Docker Hub
                     def latestTag = sh(
@@ -49,8 +45,8 @@ pipeline {
                     // Set the TAG environment variable for use in subsequent stages
                     env.TAG = newTag
 
-                    // Replace the tag placeholder in docker-compose.yaml with the new tag
-                    sh "sed -i 's|\\${TAG}|${newTag}|g' docker-compose.yaml"
+                    // Replace the tag placeholder in docker-compose.yml with the new tag
+             sh "sed -i 's|\\${TAG}|${newTag}|g' docker-compose.yaml"
                 }
             }
         }
