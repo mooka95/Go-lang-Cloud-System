@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Define Docker Hub credentials and repository details
         DOCKERHUB_CREDENTIALS = credentials('39269fd9-1944-4b99-93fe-53f198a1a0cf')
         DOCKERHUB_REPO = 'mooka95/cloud-go'
         COMPOSE_PROJECT_NAME = 'app'
@@ -19,18 +18,20 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Install jq if not already installed
-                    sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
-                    
+                    // Install jq if not already installed (assuming Debian/Ubuntu)
+                    sh 'apt-get update && apt-get install -y jq'
+
                     // Login to Docker Hub
-                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                    
+                    withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
+                        sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                    }
+
                     // Get the latest version tag from Docker Hub
                     def latestTag = sh(
-                        script: "curl -s -u ${DOCKERHUB_CREDENTIALS_USR}:${DOCKERHUB_CREDENTIALS_PSW} https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=1 | jq -r '.results[0].name'", 
+                        script: "curl -s -u ${DOCKERHUB_CREDENTIALS_USR}:${DOCKERHUB_CREDENTIALS_PSW} https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=1 | jq -r '.results[0].name'",
                         returnStdout: true
                     ).trim()
-                    
+
                     // Determine the new tag by incrementing the latest tag or starting from v1
                     def newTag = 'v1'
                     if (latestTag =~ /^v\d+$/) {
@@ -41,12 +42,12 @@ pipeline {
                     sh "docker build -t ${DOCKERHUB_REPO}:${newTag} ."
                     // Push the Docker image to Docker Hub
                     sh "docker push ${DOCKERHUB_REPO}:${newTag}"
-                    
+
                     // Set the TAG environment variable for use in subsequent stages
                     env.TAG = newTag
 
-                    // Replace the tag placeholder in docker-compose.yml with the new tag
-             sh "sed -i 's|\\${TAG}|${newTag}|g' docker-compose.yaml"
+                    // Replace the tag placeholder in docker-compose.yaml with the new tag
+                    sh "sed -i 's|\\${TAG}|${newTag}|g' docker-compose.yaml"
                 }
             }
         }
@@ -62,7 +63,7 @@ pipeline {
                 sh 'docker-compose down && docker-compose up -d'
             }
         }
-        
+
         stage('Get Running Containers') {
             steps {
                 // List running containers
