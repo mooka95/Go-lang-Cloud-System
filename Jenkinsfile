@@ -21,8 +21,8 @@ pipeline {
                     // Update apt-get without using sudo
                     sh 'sudo apt-get update'
 
-                    // Install jq without sudo
-                    sh 'sudo apt-get install -y jq'
+                    // Install jq without sudo, using DEBIAN_FRONTEND to avoid prompts
+                    sh 'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jq'
 
                     // Login to Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
