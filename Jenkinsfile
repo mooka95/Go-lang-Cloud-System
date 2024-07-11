@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define Docker Hub credentials and repository details
-        DOCKERHUB_CREDENTIALS = credentials('76a0702f-d9c7-46ae-973e-c9cbe932710d')
+        DOCKERHUB_CREDENTIALS = credentials('39269fd9-1944-4b99-93fe-53f198a1a0cf')
         DOCKERHUB_REPO = 'mooka95/cloud-go'
         COMPOSE_PROJECT_NAME = 'app'
     }
@@ -40,7 +40,7 @@ pipeline {
                     // Build the Docker image with the new tag
                     sh "docker build -t ${DOCKERHUB_REPO}:${newTag} ."
                     // Push the Docker image to Docker Hub
-                    // sh "docker push ${DOCKERHUB_REPO}:${newTag}"
+                    sh "docker push ${DOCKERHUB_REPO}:${newTag}"
                     
                     // Set the TAG environment variable for use in subsequent stages
                     env.TAG = newTag
