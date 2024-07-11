@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     // Install jq if not already installed
-                    sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
+                    // sh 'if ! command -v jq > /dev/null; then sudo apt-get update && sudo apt-get install -y jq; fi'
                     
                     // Login to Docker Hub
                     sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
