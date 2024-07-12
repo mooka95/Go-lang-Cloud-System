@@ -95,7 +95,7 @@ func LoginUser(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Login successfully", "token": token})
+	context.JSON(http.StatusOK, gin.H{"message": "Login successfully congrats", "token": token})
 }
 
 type WordsRequestBody struct {
